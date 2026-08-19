@@ -1,122 +1,232 @@
 # AI-Based GitHub Repository Analyzer
 
-An AI-assisted repository analysis platform that collects repository metadata and source-code information from GitHub, evaluates software quality using deterministic analysis techniques, and generates practical improvement recommendations.
+An AI-assisted developer tool that collects GitHub repository data, performs deterministic static analysis, calculates explainable quality metrics, and generates practical improvement recommendations.
 
-## Project Status
+## Status
 
-🚧 **In Development**
+✅ **Working MVP architecture implemented**
 
-This repository currently contains the project foundation, technical documentation, architecture, and development plan. Implementation will be added incrementally as the project is developed.
+The repository contains the backend analysis pipeline, GitHub API integration, Python static-analysis engine, scoring system, optional AI layer, dashboard, tests, Docker configuration, and CI workflow.
 
-## Problem Statement
+## What It Does
 
-GitHub repositories contain useful signals about project quality, but reviewing them manually can be time-consuming. Developers and reviewers often need to inspect repository metadata, documentation, source structure, code complexity, maintainability, and project organization separately.
+Enter a public GitHub repository URL and the system:
 
-The goal of this project is to combine these signals into one analysis workflow and use AI to convert technical findings into understandable, prioritized recommendations.
+1. Validates the repository URL.
+2. Retrieves repository metadata, languages, README content and repository tree through the GitHub REST API.
+3. Filters irrelevant files and collects supported source files.
+4. Performs repository-structure, documentation and Python AST-based analysis.
+5. Calculates code-quality, documentation, structure, maintainability and overall scores.
+6. Generates evidence-based findings.
+7. Optionally sends structured findings to an LLM for natural-language recommendations.
+8. Displays the result in a web dashboard.
 
-## Core Idea
+## Architecture
 
 ```text
 GitHub Repository URL
         ↓
-GitHub API Data Collection
+FastAPI Backend
         ↓
-Repository Metadata + Source Files
+GitHub REST API Collector
         ↓
-Static Code Analysis
+Repository Snapshot
         ↓
-Quality Metrics & Findings
-        ↓
-AI Recommendation Engine
-        ↓
-Prioritized Improvement Report
+┌────────────────────────────────────┐
+│ Structure │ README │ Python AST    │
+│ Analysis  │ Checks │ Code Metrics  │
+└──────────────────┬─────────────────┘
+                   ↓
+             Finding Aggregator
+                   ↓
+              Scoring Engine
+                   ↓
+            Optional AI / LLM
+                   ↓
+            Analysis Dashboard
 ```
 
-## Planned Features
+## Technology Stack
 
-- Collect repository name, description, owner, language, stars, forks, issues, branches and README information.
-- Inspect repository structure and supported source files.
-- Analyze source code using language-aware static analysis.
-- Calculate useful maintainability and complexity metrics.
-- Evaluate README and documentation quality.
-- Generate an overall repository quality score using transparent rules.
-- Use an AI/LLM layer to explain findings and suggest improvements.
-- Present results through a clean API and dashboard.
+- **Python 3.12+**
+- **FastAPI** + Uvicorn
+- **GitHub REST API**
+- **Python `ast` module** for syntax-tree analysis
+- **Requests** for HTTP integration
+- **Pydantic** for request/response validation
+- **SQLite-ready architecture** for future persistence
+- **Optional LLM integration** through the OpenAI Responses API
+- **HTML/CSS/JavaScript** dashboard
+- **Pytest** automated tests
+- **Docker** containerization
+- **GitHub Actions** CI
 
-## Planned Technology Stack
+## Analysis Capabilities
 
-- **Language:** Python
-- **Backend:** FastAPI
-- **GitHub Integration:** GitHub REST API
-- **Static Analysis:** Python AST and language-specific analysis tools
-- **Data Processing:** Pandas / standard Python tooling where appropriate
-- **Database:** SQLite for the initial version
-- **AI Layer:** LLM API with structured prompts
-- **Frontend:** Lightweight web dashboard
-- **Version Control:** Git and GitHub
+### Repository Metadata
 
-## High-Level Architecture
+- Repository name and owner
+- Description
+- Default branch
+- Stars
+- Forks
+- Open issues
+- Repository size
+- Language statistics
+
+### Repository Structure
+
+- Source-file count
+- Test-file detection
+- Documentation-file detection
+- Dependency/configuration file detection
+- Top-level directory information
+
+### Documentation
+
+Checks for README presence and indicators for:
+
+- Description/overview
+- Installation/setup
+- Usage/getting started
+- Requirements/dependencies
+- Testing information
+
+### Python Code Analysis
+
+The first language-specific analyzer uses Python AST and detects:
+
+- Functions and classes
+- Imports
+- Function length
+- High-complexity functions
+- Deep nesting
+- Broad exception handling
+- Python parsing errors
+
+### Scoring
+
+The initial scoring model uses transparent weighted categories:
 
 ```text
-                    ┌──────────────────────┐
-                    │   GitHub Repository   │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │ GitHub API Collector  │
-                    └──────────┬───────────┘
-                               │
-                ┌──────────────┴──────────────┐
-                ▼                             ▼
-      ┌──────────────────┐          ┌──────────────────┐
-      │ Repository       │          │ Source / README  │
-      │ Metadata         │          │ Content          │
-      └────────┬─────────┘          └────────┬─────────┘
-               └──────────────┬──────────────┘
-                              ▼
-                    ┌──────────────────────┐
-                    │ Analysis Engine       │
-                    │ AST / Metrics / Rules │
-                    └──────────┬───────────┘
-                               ▼
-                    ┌──────────────────────┐
-                    │ AI Recommendation    │
-                    │ Engine               │
-                    └──────────┬───────────┘
-                               ▼
-                    ┌──────────────────────┐
-                    │ Analysis Report      │
-                    └──────────────────────┘
+Overall = Code Quality × 0.30
+        + Documentation × 0.20
+        + Structure × 0.20
+        + Maintainability × 0.30
 ```
 
-## Example Output
+The scoring thresholds are heuristic indicators, not proof of correctness or security.
 
-A completed analysis is intended to answer questions such as:
+## AI Layer
 
-- What language and technologies does the repository use?
-- How well documented is the project?
-- Which files or functions are unusually complex?
-- Are there obvious maintainability issues?
-- What improvements should the developer prioritize?
-- Which recommendations are based on measurable findings and which are AI-generated explanations?
+AI is intentionally separated from deterministic analysis.
 
-## Development Roadmap
+```text
+Measured Findings
+      ↓
+Structured Evidence
+      ↓
+LLM
+      ↓
+Summary + Strengths + Weaknesses + Priority Actions
+```
 
-1. Define the data model and supported repository inputs.
-2. Implement GitHub API collection.
-3. Build repository structure inspection.
-4. Implement deterministic code-quality analysis.
-5. Add scoring and finding aggregation.
-6. Add the AI recommendation layer.
-7. Build the FastAPI service.
-8. Add persistence and analysis history.
-9. Build the dashboard.
-10. Add tests, documentation, and deployment configuration.
+If no `OPENAI_API_KEY` is configured, the application still works and returns deterministic recommendations.
 
-## Important Design Principle
+## Run Locally
 
-The AI layer is not intended to replace static analysis. Deterministic analysis should produce measurable findings first; the AI layer should explain those findings, prioritize them, and provide actionable suggestions.
+### 1. Create a virtual environment
+
+```bash
+python -m venv venv
+```
+
+Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source venv/bin/activate
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure environment variables
+
+Copy `.env.example` to `.env` and optionally add:
+
+```text
+GITHUB_TOKEN=your_github_token
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-4.1-mini
+```
+
+Do not commit `.env` or API keys.
+
+### 4. Start the application
+
+```bash
+uvicorn backend.app.main:app --reload
+```
+
+Open:
+
+- Dashboard: `http://127.0.0.1:8000/`
+- API docs: `http://127.0.0.1:8000/docs`
+- Health check: `http://127.0.0.1:8000/health`
+
+### 5. Run tests
+
+```bash
+pytest -q
+```
+
+## Docker
+
+```bash
+docker build -t ai-github-repository-analyzer .
+docker run --rm -p 8000:8000 --env-file .env ai-github-repository-analyzer
+```
+
+## Security Notes
+
+- Never expose GitHub or AI API keys in frontend code.
+- Never execute downloaded repository source code.
+- Treat repository content as untrusted input.
+- Limit repository size and number of files analyzed.
+- Keep AI recommendations grounded in measured findings.
+
+## Limitations
+
+- The initial language-specific analyzer focuses on Python.
+- Static metrics are indicators and require context.
+- AI recommendations can be incorrect.
+- Very large repositories require stronger pagination, caching and asynchronous processing.
+- Private repositories require appropriate authorization.
+
+## Future Enhancements
+
+- JavaScript/TypeScript, Java, Go and C++ analyzers
+- Pull-request analysis
+- Commit-history insights
+- Repository comparison
+- Historical quality trends
+- Analysis persistence and user accounts
+- GitHub App/OAuth integration
+- Custom scoring profiles
+- Local/private LLM support
+
+## Resume Description
+
+> Developed an AI-powered GitHub repository analyzer using Python and FastAPI that collects repository metadata and source information through REST APIs, performs AST-based static code and documentation analysis, calculates explainable quality metrics, and generates AI-assisted recommendations through a structured LLM workflow.
 
 ## Author
 
