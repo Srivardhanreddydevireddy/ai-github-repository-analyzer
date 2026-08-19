@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 
 from .ai_service import AIService
 from .analyzers import analyze_python_sources, analyze_readme, analyze_structure
@@ -22,8 +25,11 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def root() -> dict[str, str]:
+@app.get("/", include_in_schema=False)
+def root():
+    frontend = Path(__file__).resolve().parents[2] / "frontend" / "index.html"
+    if frontend.exists():
+        return FileResponse(frontend)
     return {"message": "AI-Based GitHub Repository Analyzer is running"}
 
 
