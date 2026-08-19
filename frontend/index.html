@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Based GitHub Repository Analyzer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <p class="eyebrow">DEVELOPER TOOL</p>
+      <h1>AI-Based GitHub Repository Analyzer</h1>
+      <p class="subtitle">Analyze repository quality, structure, documentation and maintainability with AI-assisted recommendations.</p>
+    </header>
+
+    <section class="search-card">
+      <label for="repoUrl">GitHub Repository URL</label>
+      <div class="search-row">
+        <input id="repoUrl" type="url" placeholder="https://github.com/owner/repository" autocomplete="off">
+        <button id="analyzeBtn">Analyze Repository</button>
+      </div>
+      <p id="status" class="status"></p>
+    </section>
+
+    <section id="results" class="hidden">
+      <div class="hero-grid">
+        <div class="card score-card">
+          <span>Overall Score</span>
+          <strong id="overall">—</strong>
+          <small>/ 100</small>
+        </div>
+        <div class="card"><span>Code Quality</span><strong id="codeScore">—</strong></div>
+        <div class="card"><span>Documentation</span><strong id="docScore">—</strong></div>
+        <div class="card"><span>Maintainability</span><strong id="maintScore">—</strong></div>
+      </div>
+
+      <div class="grid">
+        <section class="card">
+          <h2>Repository</h2>
+          <div id="repoInfo"></div>
+        </section>
+        <section class="card">
+          <h2>Languages</h2>
+          <div id="languages"></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Analysis Findings</h2>
+        <div id="findings"></div>
+      </section>
+
+      <section class="card">
+        <h2>AI Recommendations</h2>
+        <div id="aiResult"></div>
+      </section>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
