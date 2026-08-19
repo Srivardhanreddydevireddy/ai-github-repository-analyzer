@@ -1,11 +1,12 @@
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
 from .ai_service import AIService
 from .analyzers import analyze_python_sources, analyze_readme, analyze_structure
+from .database import init_db, list_history, save_analysis
 from .github_client import GitHubClient
 from .models import AnalysisResponse, AnalyzeRequest, Finding
 from .scoring import build_findings, calculate_scores
@@ -25,6 +26,7 @@ app.add_middleware(
 )
 
 FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
+init_db()
 
 
 @app.get("/", include_in_schema=False)
@@ -50,6 +52,11 @@ def health() -> dict[str, str]:
     return {"status": "healthy"}
 
 
+@app.get("/history")
+def history(limit: int = Query(default=20, ge=1, le=100)) -> list[dict]:
+    return list_history(limit)
+
+
 @app.post("/analyze", response_model=AnalysisResponse)
 def analyze(request: AnalyzeRequest) -> AnalysisResponse:
     try:
@@ -66,7 +73,7 @@ def analyze(request: AnalyzeRequest) -> AnalysisResponse:
     findings = build_findings(structure, documentation, code_quality)
     ai = AIService().generate(data["repository"], scores, findings)
 
-    return AnalysisResponse(
+    result = AnalysisResponse(
         repository=data["repository"],
         languages=data["languages"],
         structure=structure,
@@ -76,3 +83,5 @@ def analyze(request: AnalyzeRequest) -> AnalysisResponse:
         findings=[Finding(**item) for item in findings],
         ai=ai,
     )
+    save_analysis(request.repository_url, result.model_dump())
+    return result
