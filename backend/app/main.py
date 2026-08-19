@@ -24,13 +24,25 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+FRONTEND = Path(__file__).resolve().parents[2] / "frontend"
+
 
 @app.get("/", include_in_schema=False)
 def root():
-    frontend = Path(__file__).resolve().parents[2] / "frontend" / "index.html"
-    if frontend.exists():
-        return FileResponse(frontend)
+    index = FRONTEND / "index.html"
+    if index.exists():
+        return FileResponse(index)
     return {"message": "AI-Based GitHub Repository Analyzer is running"}
+
+
+@app.get("/style.css", include_in_schema=False)
+def stylesheet():
+    return FileResponse(FRONTEND / "style.css", media_type="text/css")
+
+
+@app.get("/app.js", include_in_schema=False)
+def javascript():
+    return FileResponse(FRONTEND / "app.js", media_type="application/javascript")
 
 
 @app.get("/health")
